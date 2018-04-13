@@ -3,7 +3,7 @@ iTunes Connect API
 
 # Usage
 
-To quickly play around with `spaceship` launch `irb` in your terminal and execute `require "spaceship"`.
+To quickly play around with _spaceship_ launch `irb` in your terminal and execute `require "spaceship"`.
 
 In general the classes are pre-fixed with the `Tunes` module.
 
@@ -69,7 +69,7 @@ You can have up to 2 app versions at the same time. One is usually the version a
 
 While you usually can modify some values in the production version (e.g. app description), most options are already locked.
 
-With `spaceship` you can access the versions like this
+With _spaceship_ you can access the versions like this
 
 ```ruby
 app.live_version # the version that's currently available in the App Store
@@ -101,7 +101,8 @@ v.set_rating({
   'UNRESTRICTED_WEB_ACCESS' => 0
 })
 # Available values:
-# https://github.com/KrauseFx/deliver/blob/master/Reference.md
+# https://github.com/fastlane/fastlane/blob/master/deliver/assets/example_rating_config.json
+# https://docs.fastlane.tools/actions/deliver/#reference (Open "View all available categories, languages, etc.")
 
 # Push the changes back to the server
 v.save!
@@ -284,24 +285,24 @@ For a full list of available options, check out [app_submission.rb](https://gith
 
 There are 3 types of testers:
 
-- **External testers**: usually not part of your team. You can invite up to 1000/2000 external testers. Before distributing a build to those testers you need to submit your app to beta review.
+- **External testers**: usually not part of your team. You can invite up to 10000 external testers. Before distributing a build to those testers you need to submit your app to beta review.
 - **Internal testers**: Employees that are registered in your iTunes Connect team. They get access to all builds without having to wait for review.
 - **Sandbox testers**: Dummy accounts to test development-mode apps with in-app purchase or Apple Pay.
 
 ```ruby
-# Find an internal tester based on the email address
-tester = Spaceship::Tunes::Tester::Internal.find("felix@krausefx.com")
+# Find a tester based on the email address
+tester = Spaceship::TestFlight::Tester.find(app_id: "some_app_id", email: "felix@krausefx.com")
 
-# Same for external testers
-tester = Spaceship::Tunes::Tester::External.find("guest@krausefx.com")
+# Creating new testers
+Spaceship::TestFlight::Tester.create_app_level_tester(
+      app_id: "io.myapp",
+       email: "github@krausefx.com",
+  first_name: "Felix",
+   last_name: "Krause"
+)
 
-# Creating new external testers
-Spaceship::Tunes::Tester::External.create!(email: "github@krausefx.com",
-                                      first_name: "Felix",
-                                       last_name: "Krause",
-                                          groups: ["spaceship"])
 ```
-Right now, `spaceship` can't modify or create internal testers.
+Right now, _spaceship_ can't modify or create internal testers.
 
 ```ruby
 # Load all sandbox testers

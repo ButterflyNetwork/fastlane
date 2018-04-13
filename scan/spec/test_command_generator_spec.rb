@@ -75,6 +75,10 @@ describe Scan do
     allow(response).to receive(:read).and_return(@valid_simulators)
     allow(Open3).to receive(:popen3).with("xcrun simctl list devices").and_yield(nil, response, nil, nil)
 
+    rt_response = ""
+    allow(rt_response).to receive(:read).and_return("no\n")
+    allow(Open3).to receive(:popen3).with("xcrun simctl list runtimes").and_yield(nil, rt_response, nil, nil)
+
     allow(FastlaneCore::CommandExecutor).to receive(:execute).with(command: "sw_vers -productVersion", print_all: false, print_command: false).and_return('10.12.1')
 
     allow(Scan).to receive(:project).and_return(@project)
@@ -86,10 +90,12 @@ describe Scan do
     end
 
     it "raises an exception when project path wasn't found" do
+      tmp_path = Dir.mktmpdir
+      path = "#{tmp_path}/notExistent"
       expect do
-        options = { project: "/notExistent" }
+        options = { project: path }
         Scan.config = FastlaneCore::Configuration.create(Scan::Options.available_options, options)
-      end.to raise_error "Project file not found at path '/notExistent'"
+      end.to raise_error("Project file not found at path '#{path}'")
     end
 
     describe "Supports toolchain" do
@@ -106,7 +112,7 @@ describe Scan do
         end.to raise_error("Unresolved conflict between options: 'toolchain' and 'xctestrun'")
       end
 
-      it "passes the toolchain option to xcodebuild" do
+      it "passes the toolchain option to xcodebuild", requires_xcodebuild: true do
         options = { project: "./scan/examples/standard/app.xcodeproj", sdk: "9.0", toolchain: "com.apple.dt.toolchain.Swift_2_3" }
         Scan.config = FastlaneCore::Configuration.create(Scan::Options.available_options, options)
 
@@ -126,7 +132,7 @@ describe Scan do
       end
     end
 
-    it "supports additional parameters" do
+    it "supports additional parameters", requires_xcodebuild: true do
       log_path = File.expand_path("~/Library/Logs/scan/app-app.log")
 
       xcargs = { DEBUG: "1", BUNDLE_NAME: "Example App" }
@@ -148,7 +154,7 @@ describe Scan do
                                    ])
     end
 
-    it "supports custom xcpretty formatter" do
+    it "supports custom xcpretty formatter", requires_xcodebuild: true do
       options = { formatter: "custom-formatter", project: "./scan/examples/standard/app.xcodeproj", sdk: "9.0" }
       Scan.config = FastlaneCore::Configuration.create(Scan::Options.available_options, options)
 
@@ -162,7 +168,7 @@ describe Scan do
         Scan.config = FastlaneCore::Configuration.create(Scan::Options.available_options, options)
       end
 
-      it "uses the correct build command with the example project with no additional parameters" do
+      it "uses the correct build command with the example project with no additional parameters", requires_xcodebuild: true do
         log_path = File.expand_path("~/Library/Logs/scan/app-app.log")
 
         result = @test_command_generator.generate
@@ -178,25 +184,25 @@ describe Scan do
                                      ])
       end
 
-      it "#project_path_array" do
+      it "#project_path_array", requires_xcodebuild: true do
         result = @test_command_generator.project_path_array
         expect(result).to eq(["-scheme app", "-project ./scan/examples/standard/app.xcodeproj"])
       end
 
-      it "#build_path" do
+      it "#build_path", requires_xcodebuild: true do
         result = @test_command_generator.build_path
         regex = %r{Library/Developer/Xcode/Archives/\d\d\d\d\-\d\d\-\d\d}
         expect(result).to match(regex)
       end
 
-      it "#buildlog_path is used when provided" do
+      it "#buildlog_path is used when provided", requires_xcodebuild: true do
         options = { project: "./scan/examples/standard/app.xcodeproj", buildlog_path: "/tmp/my/path" }
         Scan.config = FastlaneCore::Configuration.create(Scan::Options.available_options, options)
         result = @test_command_generator.xcodebuild_log_path
         expect(result).to include("/tmp/my/path")
       end
 
-      it "#buildlog_path is not used when not provided" do
+      it "#buildlog_path is not used when not provided", requires_xcodebuild: true do
         result = @test_command_generator.xcodebuild_log_path
         expect(result.to_s).to include(File.expand_path("#{FastlaneCore::Helper.buildlog_path}/scan"))
       end
@@ -208,7 +214,7 @@ describe Scan do
         Scan.config = FastlaneCore::Configuration.create(Scan::Options.available_options, options)
       end
 
-      it "uses the correct build command with the example project" do
+      it "uses the correct build command with the example project", requires_xcodebuild: true do
         log_path = File.expand_path("~/Library/Logs/scan/app-app.log")
 
         result = @test_command_generator.generate
@@ -227,7 +233,7 @@ describe Scan do
 
     describe "with Scan option :include_simulator_logs" do
       context "extract system.logarchive" do
-        it "copies all device logs to the output directory" do
+        it "copies all device logs to the output directory", requires_xcodebuild: true do
           Scan.config = FastlaneCore::Configuration.create(Scan::Options.available_options, {
             output_directory: '/tmp/scan_results',
             include_simulator_logs: true,
@@ -262,7 +268,7 @@ describe Scan do
     end
 
     describe "Result Bundle Example" do
-      it "uses the correct build command with the example project" do
+      it "uses the correct build command with the example project", requires_xcodebuild: true do
         log_path = File.expand_path("~/Library/Logs/scan/app-app.log")
 
         options = { project: "./scan/examples/standard/app.xcodeproj", result_bundle: true, scheme: 'app' }
@@ -284,7 +290,7 @@ describe Scan do
     end
 
     describe "Test Exclusion Example" do
-      it "only tests the test bundle/suite/cases specified in only_testing when the input is an array" do
+      it "only tests the test bundle/suite/cases specified in only_testing when the input is an array", requires_xcodebuild: true do
         log_path = File.expand_path("~/Library/Logs/scan/app-app.log")
 
         options = { project: "./scan/examples/standard/app.xcodeproj", scheme: 'app',
@@ -307,7 +313,7 @@ describe Scan do
                                      ])
       end
 
-      it "only tests the test bundle/suite/cases specified in only_testing when the input is a string" do
+      it "only tests the test bundle/suite/cases specified in only_testing when the input is a string", requires_xcodebuild: true do
         log_path = File.expand_path("~/Library/Logs/scan/app-app.log")
 
         options = { project: "./scan/examples/standard/app.xcodeproj", scheme: 'app',
@@ -329,7 +335,7 @@ describe Scan do
                                      ])
       end
 
-      it "does not the test bundle/suite/cases specified in skip_testing when the input is an array" do
+      it "does not the test bundle/suite/cases specified in skip_testing when the input is an array", requires_xcodebuild: true do
         log_path = File.expand_path("~/Library/Logs/scan/app-app.log")
 
         options = { project: "./scan/examples/standard/app.xcodeproj", scheme: 'app',
@@ -352,7 +358,7 @@ describe Scan do
                                      ])
       end
 
-      it "does not the test bundle/suite/cases specified in skip_testing when the input is a string" do
+      it "does not the test bundle/suite/cases specified in skip_testing when the input is a string", requires_xcodebuild: true do
         log_path = File.expand_path("~/Library/Logs/scan/app-app.log")
 
         options = { project: "./scan/examples/standard/app.xcodeproj", scheme: 'app',
@@ -375,7 +381,7 @@ describe Scan do
       end
     end
 
-    it "uses a device without version specifier" do
+    it "uses a device without version specifier", requires_xcodebuild: true do
       options = { project: "./scan/examples/standard/app.xcodeproj", device: "iPhone 6s" }
       Scan.config = FastlaneCore::Configuration.create(Scan::Options.available_options, options)
 
@@ -393,7 +399,7 @@ describe Scan do
                                    ])
     end
 
-    it "rejects devices with versions below deployment target" do
+    it "rejects devices with versions below deployment target", requires_xcodebuild: true do
       options = { project: "./scan/examples/standard/app.xcodeproj", device: "iPhone 5 (8.4)" }
       Scan.config = FastlaneCore::Configuration.create(Scan::Options.available_options, options)
 
@@ -410,7 +416,7 @@ describe Scan do
         Scan.config = FastlaneCore::Configuration.create(Scan::Options.available_options, options)
       end
 
-      it "should build-for-testing" do
+      it "should build-for-testing", requires_xcodebuild: true do
         Scan.config[:build_for_testing] = true
         result = @test_command_generator.generate
         expect(result).to start_with([
@@ -424,7 +430,7 @@ describe Scan do
                                        "build-for-testing"
                                      ])
       end
-      it "should test-without-building" do
+      it "should test-without-building", requires_xcodebuild: true do
         Scan.config[:test_without_building] = true
         result = @test_command_generator.generate
         expect(result).to start_with([
@@ -438,7 +444,7 @@ describe Scan do
                                        "test-without-building"
                                      ])
       end
-      it "should raise an exception if two build_modes are set" do
+      it "should raise an exception if two build_modes are set", requires_xcodebuild: true do
         allow(FastlaneCore::FastlaneFolder).to receive(:path).and_return(".")
         expect do
           Fastlane::FastFile.new.parse("lane :test do
@@ -451,7 +457,7 @@ describe Scan do
         end.to raise_error("Unresolved conflict between options: 'test_without_building' and 'build_for_testing'")
       end
 
-      it "should run tests from xctestrun file" do
+      it "should run tests from xctestrun file", requires_xcodebuild: true do
         Scan.config[:xctestrun] = "/folder/mytests.xctestrun"
         result = @test_command_generator.generate
         expect(result).to start_with([
@@ -467,7 +473,7 @@ describe Scan do
     end
 
     describe "Multiple devices example" do
-      it "uses multiple destinations" do
+      it "uses multiple destinations", requires_xcodebuild: true do
         options = { project: "./scan/examples/standard/app.xcodeproj", destination: [
           "platform=iOS Simulator,name=iPhone 6s,OS=9.3",
           "platform=iOS Simulator,name=iPad Air 2,OS=9.2"
@@ -488,7 +494,7 @@ describe Scan do
                                      ])
       end
 
-      it "uses multiple devices" do
+      it "uses multiple devices", requires_xcodebuild: true do
         options = { project: "./scan/examples/standard/app.xcodeproj", devices: [
           "iPhone 6s (9.3)",
           "iPad Air (9.3)"
@@ -509,7 +515,7 @@ describe Scan do
                                      ])
       end
 
-      it "de-duplicates devices matching same simulator" do
+      it "de-duplicates devices matching same simulator", requires_xcodebuild: true do
         options = { project: "./scan/examples/standard/app.xcodeproj", devices: [
           "iPhone 5 (9.0)",
           "iPhone 5 (9.0.0)"
