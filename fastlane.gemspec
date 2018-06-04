@@ -14,26 +14,26 @@ File.write("#{lib}/fastlane/plugins/template/.rubocop.yml", YAML.dump(config))
 Gem::Specification.new do |spec|
   spec.name          = "fastlane"
   spec.version       = Fastlane::VERSION
-  spec.authors       = ["Kohki Miki",
-                        "Andrew McBurney",
-                        "Jimmy Dee",
-                        "Matthew Ellis",
-                        "Helmut Januschka",
-                        "Olivier Halligon",
-                        "Luka Mirosevic",
-                        "Aaron Brager",
-                        "Jérôme Lacoste",
+  spec.authors       = ["Danielle Tomlinson",
                         "Joshua Liebowitz",
-                        "Fumiya Nakamura",
-                        "Jan Piotrowski",
-                        "Danielle Tomlinson",
-                        "Jorge Revuelta H",
-                        "Maksym Grebenets",
+                        "Andrew McBurney",
                         "Manu Wallner",
-                        "Iulian Onofrei",
+                        "Jérôme Lacoste",
+                        "Aaron Brager",
+                        "Kohki Miki",
                         "Felix Krause",
+                        "Iulian Onofrei",
+                        "Fumiya Nakamura",
+                        "Maksym Grebenets",
                         "Josh Holtz",
-                        "Stefan Natchev"]
+                        "Jorge Revuelta H",
+                        "Matthew Ellis",
+                        "Jimmy Dee",
+                        "Luka Mirosevic",
+                        "Jan Piotrowski",
+                        "Stefan Natchev",
+                        "Helmut Januschka",
+                        "Olivier Halligon"]
 
   spec.email         = ["fastlane@krausefx.com"]
   spec.summary       = Fastlane::DESCRIPTION
@@ -82,7 +82,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency('mini_magick', '~> 4.5.1') # To open, edit and export PSD files
   spec.add_dependency('multi_json') # Because sometimes it's just not installed
   spec.add_dependency('multi_xml', '~> 0.5')
-  spec.add_dependency('rubyzip', '>= 1.1.0', '< 2.0.0') # fix swift/ipa in gym
+  spec.add_dependency('rubyzip', '>= 1.2.1', '< 2.0.0') # fix swift/ipa in gym
   spec.add_dependency('security', '= 0.1.3') # macOS Keychain manager, a dead project, no updates expected
   spec.add_dependency('xcpretty-travis-formatter', '>= 0.0.3')
   spec.add_dependency('dotenv', '>= 2.1.1', '< 3.0.0')
