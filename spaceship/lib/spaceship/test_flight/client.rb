@@ -164,6 +164,17 @@ module Spaceship
         testers
       end
 
+      #####################################################
+      # @!Internal Testers
+      #####################################################
+      def internal_users(app_id: nil)
+        assert_required_params(__method__, binding)
+        url = "providers/#{team_id}/apps/#{app_id}/internalUsers"
+        r = request(:get, url)
+
+        parse_response(r, 'data')
+      end
+
       ##
       # @!group Testers API
       ##
@@ -317,7 +328,7 @@ module Spaceship
 
         raise UnexpectedResponse, response.body['error'] if response.body['error']
 
-        raise UnexpectedResponse, "Temporary iTunes Connect error: #{response.body}" if response.body['statusCode'] == 'ERROR'
+        raise UnexpectedResponse, "Temporary App Store Connect error: #{response.body}" if response.body['statusCode'] == 'ERROR'
 
         return response.body['data'] if response.body['data']
 

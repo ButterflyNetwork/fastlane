@@ -68,8 +68,9 @@ module Supply
 
       Google::Apis::ClientOptions.default.application_name = "fastlane - supply"
       Google::Apis::ClientOptions.default.application_version = Fastlane::VERSION
-      Google::Apis::ClientOptions.default.read_timeout_sec = 300
-      Google::Apis::ClientOptions.default.open_timeout_sec = 300
+      Google::Apis::ClientOptions.default.read_timeout_sec = Supply.config[:timeout]
+      Google::Apis::ClientOptions.default.open_timeout_sec = Supply.config[:timeout]
+      Google::Apis::ClientOptions.default.send_timeout_sec = Supply.config[:timeout]
       Google::Apis::RequestOptions.default.retries = 5
 
       self.android_publisher = Androidpublisher::AndroidPublisherService.new
@@ -155,13 +156,22 @@ module Supply
       end
     end
 
-    # Get a list of all apks verion codes - returns the list of version codes
+    # Get a list of all APK version codes - returns the list of version codes
     def apks_version_codes
       ensure_active_edit!
 
       result = call_google_api { android_publisher.list_apks(current_package_name, current_edit.id) }
 
       return Array(result.apks).map(&:version_code)
+    end
+
+    # Get a list of all AAB version codes - returns the list of version codes
+    def aab_version_codes
+      ensure_active_edit!
+
+      result = call_google_api { android_publisher.list_edit_bundles(current_package_name, current_edit.id) }
+
+      return Array(result.bundles).map(&:version_code)
     end
 
     # Get a list of all apk listings (changelogs) - returns the list

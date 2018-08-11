@@ -14,26 +14,26 @@ File.write("#{lib}/fastlane/plugins/template/.rubocop.yml", YAML.dump(config))
 Gem::Specification.new do |spec|
   spec.name          = "fastlane"
   spec.version       = Fastlane::VERSION
-  spec.authors       = ["Danielle Tomlinson",
-                        "Joshua Liebowitz",
-                        "Andrew McBurney",
-                        "Manu Wallner",
+  spec.authors       = ["Stefan Natchev",
                         "Jérôme Lacoste",
+                        "Andrew McBurney",
+                        "Joshua Liebowitz",
+                        "Maksym Grebenets",
+                        "Manu Wallner",
+                        "Jorge Revuelta H",
                         "Aaron Brager",
                         "Kohki Miki",
-                        "Felix Krause",
+                        "Josh Holtz",
+                        "Luka Mirosevic",
+                        "Olivier Halligon",
+                        "Matthew Ellis",
+                        "Danielle Tomlinson",
                         "Iulian Onofrei",
                         "Fumiya Nakamura",
-                        "Maksym Grebenets",
-                        "Josh Holtz",
-                        "Jorge Revuelta H",
-                        "Matthew Ellis",
+                        "Felix Krause",
                         "Jimmy Dee",
-                        "Luka Mirosevic",
-                        "Jan Piotrowski",
-                        "Stefan Natchev",
                         "Helmut Januschka",
-                        "Olivier Halligon"]
+                        "Jan Piotrowski"]
 
   spec.email         = ["fastlane@krausefx.com"]
   spec.summary       = Fastlane::DESCRIPTION
@@ -55,7 +55,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency('slack-notifier', '>= 2.0.0', '< 3.0.0') # Slack notifications
   spec.add_dependency('xcodeproj', '>= 1.5.7', '< 2.0.0') # Needed for commit_version_bump action and gym code_signing_mapping
-  spec.add_dependency('xcpretty', '>= 0.2.4', '< 1.0.0') # prettify xcodebuild output
+  spec.add_dependency('xcpretty', '~> 0.2.8') # prettify xcodebuild output
   spec.add_dependency('terminal-notifier', '>= 1.6.2', '< 2.0.0') # macOS notifications
   spec.add_dependency('terminal-table', '>= 1.4.5', '< 2.0.0') # Actions documentation
   spec.add_dependency('plist', '>= 3.1.0', '< 4.0.0') # Needed for set_build_number_repository and get_info_plist_value actions
@@ -93,7 +93,7 @@ Gem::Specification.new do |spec|
 
   # The Google API Client gem is *not* API stable between minor versions - hence the specific version locking here.
   # If you upgrade this gem, make sure to upgrade the users of it as well.
-  spec.add_dependency('google-api-client', '>= 0.21.2', '< 0.22.0') # Google API Client to access Play Publishing API
+  spec.add_dependency('google-api-client', '>= 0.21.2', '< 0.24.0') # Google API Client to access Play Publishing API
 
   spec.add_dependency('emoji_regex', '~> 0.1') # Used to scan for Emoji in the changelog
 
