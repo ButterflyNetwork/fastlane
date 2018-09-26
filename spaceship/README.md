@@ -49,7 +49,7 @@ Get in contact with the creators on Twitter: [@FastlaneTools](https://twitter.co
 
 -------
 
-<h5 align="center"><code>spaceship</code> is part of <a href="https://fastlane.tools">fastlane</a>: The easiest way to automate beta deployments and releases for your iOS and Android apps.</h5>
+<h5 align="center"><em>spaceship</em> is part of <a href="https://fastlane.tools">fastlane</a>: The easiest way to automate beta deployments and releases for your iOS and Android apps.</h5>
 
 # What's spaceship?
 
@@ -177,12 +177,12 @@ Overview of the used API endpoints
   - Repair provisioning profiles
   - Download provisioning profiles
   - Team selection
-- `https://itunesconnect.apple.com`:
+- `https://appstoreconnect.apple.com`:
   - Managing apps
   - Managing beta testers
   - Submitting updates to review
   - Managing app metadata
-- `https://du-itc.itunesconnect.apple.com`:
+- `https://du-itc.appstoreconnect.apple.com`:
   - Upload icons, screenshots, trailers ...
 
 _spaceship_ uses all those API points to offer this seamless experience.

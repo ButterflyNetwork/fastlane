@@ -1,7 +1,6 @@
 require 'googleauth'
 require 'google/apis/androidpublisher_v2'
 Androidpublisher = Google::Apis::AndroidpublisherV2
-CredentialsLoader = Google::Auth::CredentialsLoader
 
 require 'net/http'
 
@@ -298,7 +297,7 @@ module Supply
           current_edit.id,
           track
         )
-        return result.version_codes
+        return result.version_codes || []
       rescue Google::Apis::ClientError => e
         return [] if e.status_code == 404 && e.to_s.include?("trackEmpty")
         raise
