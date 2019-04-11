@@ -166,6 +166,11 @@ module Deliver
                                      optional: true,
                                      is_string: false,
                                      default_value: false),
+        FastlaneCore::ConfigItem.new(key: :reset_ratings,
+                                    description: "Reset the summary rating when you release a new version of the application",
+                                    optional: true,
+                                    is_string: false,
+                                    default_value: false),
 
         # other app configuration
         FastlaneCore::ConfigItem.new(key: :price_tier,
@@ -184,7 +189,7 @@ module Deliver
                                      end),
         FastlaneCore::ConfigItem.new(key: :submission_information,
                                      short_option: "-b",
-                                     description: "Extra information for the submission (e.g. third party content)",
+                                     description: "Extra information for the submission (e.g. compliance specifications, IDFA settings)",
                                      is_string: false,
                                      optional: true),
 
@@ -238,7 +243,7 @@ module Deliver
         # rubocop:disable Metrics/LineLength
         FastlaneCore::ConfigItem.new(key: :itc_provider,
                                      env_name: "DELIVER_ITC_PROVIDER",
-                                     description: "The provider short name to be used with the iTMSTransporter to identify your team. To get provider short name run `pathToXcode.app/Contents/Applications/Application\\ Loader.app/Contents/itms/bin/iTMSTransporter -m provider -u 'USERNAME' -p 'PASSWORD' -account_type itunes_connect -v off`. The short names of providers should be listed in the second column",
+                                     description: "The provider short name to be used with the iTMSTransporter to identify your team. This value will override the automatically detected provider short name. To get provider short name run `pathToXcode.app/Contents/Applications/Application\\ Loader.app/Contents/itms/bin/iTMSTransporter -m provider -u 'USERNAME' -p 'PASSWORD' -account_type itunes_connect -v off`. The short names of providers should be listed in the second column",
                                      optional: true),
         # rubocop:enable Metrics/LineLength
 
@@ -257,6 +262,13 @@ module Deliver
                                      default_value: :warn),
 
         # App Metadata
+        FastlaneCore::ConfigItem.new(key: :individual_metadata_items,
+                                     env_name: "DELIVER_INDIVUDAL_METADATA_ITEMS",
+                                     description: "An array of localized metadata items to upload individually by language so that errors can be identified. E.g. ['name', 'keywords', 'description']. Note: slow",
+                                     is_string: false,
+                                     type: Array,
+                                     default_value: []),
+
         # Non Localised
         FastlaneCore::ConfigItem.new(key: :app_icon,
                                      description: "Metadata: The path to the app icon",
@@ -376,7 +388,7 @@ module Deliver
                                      optional: true),
         FastlaneCore::ConfigItem.new(key: :ignore_language_directory_validation,
                                      env_name: "DELIVER_IGNORE_LANGUAGE_DIRECTORY_VALIDATION",
-                                     description: "Ignore errors when invalid languages are found in metadata and screeenshot directories",
+                                     description: "Ignore errors when invalid languages are found in metadata and screenshot directories",
                                      default_value: false,
                                      is_string: false),
         FastlaneCore::ConfigItem.new(key: :precheck_include_in_app_purchases,

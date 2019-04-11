@@ -1,4 +1,5 @@
 require 'spaceship/tunes/tunes'
+require 'spaceship/tunes/device_type'
 
 require_relative 'app_screenshot'
 require_relative 'module'
@@ -103,9 +104,9 @@ module Deliver
         files = Dir.glob(File.join(lng_folder, "*.#{extensions}"), File::FNM_CASEFOLD).sort
         next if files.count == 0
 
-        prefer_framed = Dir.glob(File.join(lng_folder, "*_framed.#{extensions}"), File::FNM_CASEFOLD).count > 0
+        framed_screenshots_found = Dir.glob(File.join(lng_folder, "*_framed.#{extensions}"), File::FNM_CASEFOLD).count > 0
 
-        UI.important("Framed screenshots are detected! 🖼 Non-framed screenshot files may be skipped. 🏃") if prefer_framed
+        UI.important("Framed screenshots are detected! 🖼 Non-framed screenshot files may be skipped. 🏃") if framed_screenshots_found
 
         language_dir_name = File.basename(lng_folder)
 
@@ -119,13 +120,28 @@ module Deliver
           is_framed = file_path.downcase.include?("_framed.")
           is_watch = file_path.downcase.include?("watch")
 
-          if prefer_framed && !is_framed && !is_watch
+          if framed_screenshots_found && !is_framed && !is_watch
             UI.important("🏃 Skipping screenshot file: #{file_path}")
             next
           end
 
           screenshots << AppScreenshot.new(file_path, language)
         end
+      end
+
+      # Checking if the device type exists in spaceship
+      # Ex: iPhone 6.1 inch isn't supported in App Store Connect but need
+      # to have it in there for frameit support
+      unaccepted_device_shown = false
+      screenshots.select! do |screenshot|
+        exists = Spaceship::Tunes::DeviceType.exists?(screenshot.device_type)
+        unless exists
+          UI.important("Unaccepted device screenshots are detected! 🚫 Screenshot file will be skipped. 🏃") unless unaccepted_device_shown
+          unaccepted_device_shown = true
+
+          UI.important("🏃 Skipping screenshot file: #{screenshot.path} - Not an accepted App Store Connect device...")
+        end
+        exists
       end
 
       return screenshots

@@ -45,6 +45,7 @@ module FastlaneCore
           if line =~ /^-- /
             (os_type, os_version) = line.gsub(/-- (.*) --/, '\1').split
           else
+            next if os_type =~ /^Unavailable/
 
             # "    iPad (5th generation) (852A5796-63C3-4641-9825-65EBDC5C4259) (Shutdown)"
             # This line will turn the above string into
@@ -277,6 +278,16 @@ module FastlaneCore
         else
           copy_logfile(device, log_identity, logs_destination_dir)
         end
+      end
+
+      def uninstall_app(app_identifier, device_type, device_udid)
+        UI.verbose("Uninstalling app '#{app_identifier}' from #{device_type}...")
+
+        UI.message("Launch Simulator #{device_type}")
+        Helper.backticks("xcrun instruments -w #{device_udid} &> /dev/null")
+
+        UI.message("Uninstall application #{app_identifier}")
+        Helper.backticks("xcrun simctl uninstall #{device_udid} #{app_identifier} &> /dev/null")
       end
 
       private

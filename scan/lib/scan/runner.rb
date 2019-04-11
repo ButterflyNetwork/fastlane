@@ -39,11 +39,26 @@ module Scan
         }
       ]
       exit_status = 0
+
+      if Scan.config[:reset_simulator]
+        Scan.devices.each do |device|
+          FastlaneCore::Simulator.reset(udid: device.udid)
+        end
+      elsif Scan.config[:reinstall_app]
+        app_identifier = Scan.config[:app_identifier]
+        app_identifier ||= UI.input("App Identifier: ")
+
+        Scan.devices.each do |device|
+          FastlaneCore::Simulator.uninstall_app(app_identifier, device.name, device.udid)
+        end
+      end
+
       FastlaneCore::CommandExecutor.execute(command: command,
                                           print_all: true,
                                       print_command: true,
                                              prefix: prefix_hash,
                                             loading: "Loading...",
+                                    suppress_output: Scan.config[:suppress_xcode_output],
                                               error: proc do |error_output|
                                                 begin
                                                   exit_status = $?.exitstatus
@@ -78,8 +93,11 @@ module Scan
       puts("")
 
       copy_simulator_logs
+      zip_build_products
 
       if result[:failures] > 0
+        open_report
+
         UI.test_failure!("Tests have failed")
       end
 
@@ -87,8 +105,10 @@ module Scan
         UI.test_failure!("Test execution failed. Exit status: #{tests_exit_status}")
       end
 
-      zip_build_products
+      open_report
+    end
 
+    def open_report
       if !Helper.ci? && Scan.cache[:open_html_report_path]
         `open --hide '#{Scan.cache[:open_html_report_path]}'`
       end
